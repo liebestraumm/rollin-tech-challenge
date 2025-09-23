@@ -13,8 +13,13 @@ Your task is to modernize, upgrade, and extend this project.
 - Understanding of Node.js upgrades and best practices.
 - Code readability, maintainability, and structure.
 - Pragmatic design choices and reasoning.
+- Error Handling and validation
 - Write corresponding Unit test cases
 
+**Stretch Goal**
+- Use modern React features (hooks, functional components, context if needed).
+- Provide a clean and minimal UI with forms/buttons to trigger the API endpoints and display responses.
+- Basic Input Validation
 
 
 **Submission**
