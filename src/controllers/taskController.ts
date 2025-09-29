@@ -56,7 +56,21 @@ export const deleteTask: RequestHandler = async (request, response) => {
 // Updates a task
 export const updateTask: RequestHandler = async (request, response) => {
   const { id } = request.params;
-  const [updated] = await Task.update(request.body, { where: { id } });
+  
+  // Transform the data to handle date formats
+  const updateData = { ...request.body };
+  
+  // Convert DD/MM/YYYY to proper Date object for 'created' field
+  if (updateData.created && typeof updateData.created === 'string') {
+    const dateParts = updateData.created.split('/');
+    if (dateParts.length === 3) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD format
+      const [day, month, year] = dateParts;
+      updateData.created = new Date(`${year}-${month}-${day}`);
+    }
+  }
+  
+  const [updated] = await Task.update(updateData, { where: { id } });
 
   if (!updated) {
     throw new HttpError('Task not found', HttpCode.NOT_FOUND);
