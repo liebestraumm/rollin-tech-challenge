@@ -25,7 +25,7 @@ export const errorHandler = (
       `Error in ${controllerName} controller function: ${errorMessage}`,
     );
   } else {
-    console.error(`Route error: ${errorMessage}`);
+    console.error(`Error: ${errorMessage}`);
   }
 
   // Prevents errors when trying to send a response after headers have already been sent to the client.

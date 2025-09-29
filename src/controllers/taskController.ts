@@ -27,16 +27,6 @@ export const createTask: RequestHandler = async (request, response) => {
   // Transform the data to handle date formats
   const taskData = { ...request.body };
 
-  // Convert DD/MM/YYYY to proper Date object for 'created' field
-  if (taskData.created && typeof taskData.created === 'string') {
-    const dateParts = taskData.created.split('/');
-    if (dateParts.length === 3) {
-      // Convert DD/MM/YYYY to YYYY-MM-DD format
-      const [day, month, year] = dateParts;
-      taskData.created = new Date(`${year}-${month}-${day}`);
-    }
-  }
-
   const task = await Task.create(taskData);
   response.status(HttpCode.CREATED).json(task);
 };
@@ -56,20 +46,10 @@ export const deleteTask: RequestHandler = async (request, response) => {
 // Updates a task
 export const updateTask: RequestHandler = async (request, response) => {
   const { id } = request.params;
-  
+
   // Transform the data to handle date formats
   const updateData = { ...request.body };
-  
-  // Convert DD/MM/YYYY to proper Date object for 'created' field
-  if (updateData.created && typeof updateData.created === 'string') {
-    const dateParts = updateData.created.split('/');
-    if (dateParts.length === 3) {
-      // Convert DD/MM/YYYY to YYYY-MM-DD format
-      const [day, month, year] = dateParts;
-      updateData.created = new Date(`${year}-${month}-${day}`);
-    }
-  }
-  
+
   const [updated] = await Task.update(updateData, { where: { id } });
 
   if (!updated) {
