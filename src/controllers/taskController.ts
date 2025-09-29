@@ -24,7 +24,20 @@ export const createTask: RequestHandler = async (request, response) => {
     throw new HttpError('Task data is required', HttpCode.BAD_REQUEST);
   }
 
-  const task = await Task.create(request.body);
+  // Transform the data to handle date formats
+  const taskData = { ...request.body };
+
+  // Convert DD/MM/YYYY to proper Date object for 'created' field
+  if (taskData.created && typeof taskData.created === 'string') {
+    const dateParts = taskData.created.split('/');
+    if (dateParts.length === 3) {
+      // Convert DD/MM/YYYY to YYYY-MM-DD format
+      const [day, month, year] = dateParts;
+      taskData.created = new Date(`${year}-${month}-${day}`);
+    }
+  }
+
+  const task = await Task.create(taskData);
   response.status(HttpCode.CREATED).json(task);
 };
 
