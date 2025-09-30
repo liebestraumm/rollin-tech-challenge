@@ -2,6 +2,7 @@ import express from 'express';
 import taskRoutes from './routes/taskRoutes';
 import { connectToDatabase } from './database';
 import { errorHandler, notFound, deprecate } from './middleware';
+import envs from './env';
 
 const server = express();
 
@@ -24,7 +25,7 @@ server.use(errorHandler);
 const startServer = async () => {
   await connectToDatabase();
   server.listen(process.env.PORT ?? 8000, () => {
-    console.log(`API running at http://localhost:${process.env.PORT}`);
+    console.log(`API running at http://localhost:${envs.PORT}`);
   });
 };
 

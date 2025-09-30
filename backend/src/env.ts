@@ -1,4 +1,6 @@
-import "dotenv/config";
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '../.env' });
 
 const envs = {
   DB_NAME: String(process.env.DB_NAME),

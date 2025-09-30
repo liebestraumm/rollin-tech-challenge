@@ -1,7 +1,7 @@
 # compiled output
-/dist
-/node_modules
-/build
+dist/
+node_modules/
+build/
 
 # OS
 .DS_Store
@@ -25,4 +25,4 @@
 .tmp
 
 # Tests
-/coverage
+coverage/

@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 
-// Creates mock Express request, response, and next function for testing
 export const createMockReqResNext = (reqData: Partial<Request> = {}) => {
   const request = { ...reqData } as Request;
   const response = {
