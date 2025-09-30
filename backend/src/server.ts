@@ -24,7 +24,7 @@ server.use(errorHandler);
 
 const startServer = async () => {
   await connectToDatabase();
-  server.listen(process.env.PORT ?? 8000, () => {
+  server.listen(envs.PORT ?? 8000, () => {
     console.log(`API running at http://localhost:${envs.PORT}`);
   });
 };
