@@ -3,8 +3,11 @@ import taskRoutes from './routes/taskRoutes';
 import { connectToDatabase } from './database';
 import { errorHandler, notFound, deprecate } from './middleware';
 import envs from './env';
+import cors from 'cors';
 
 const server = express();
+
+server.use(cors());
 
 server.use(express.json());
 
