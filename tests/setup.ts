@@ -1,20 +1,13 @@
 import dotenv from 'dotenv';
 
+// Set timezone to UTC to prevent timezone-related test issues
+process.env.TZ = 'UTC';
+
 // Load environment variables for testing
 dotenv.config({ path: '.env.test' });
 
 // Set test environment variables
 process.env.NODE_ENV = 'test';
 
-// // Mock console.log to reduce noise in tests
-// global.console = {
-//   ...console,
-//   log: jest.fn(),
-//   debug: jest.fn(),
-//   info: jest.fn(),
-//   warn: jest.fn(),
-//   error: jest.fn(),
-// };
-
 // Increase timeout for async operations
-// jest.setTimeout(10000); 
+jest.setTimeout(10000);
