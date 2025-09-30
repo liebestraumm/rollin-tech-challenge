@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "npx tsc --project tsconfig.json",
-    "start": "npm run build && node dist/server.js",
+    "start": "npm run build && node dist/src/server.js",
     "dev": "ts-node-dev --respawn src/server.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
     "test": "jest",
