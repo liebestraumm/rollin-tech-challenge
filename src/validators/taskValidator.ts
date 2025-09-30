@@ -5,9 +5,11 @@ export const createTaskSchema = z
   .object({
     title: z
       .string({ message: 'Title must be a string' })
-      .min(1, 'Title is required'),
+      .min(1, 'Title is required')
+      .max(100, 'Title must be less than 100 characters'),
     description: z
       .string({ message: 'Description must be a string' })
+      .max(2000, 'Description must be less than 2000 characters')
       .optional(),
     complete: z
       .boolean({ message: 'Complete must be a boolean' })
