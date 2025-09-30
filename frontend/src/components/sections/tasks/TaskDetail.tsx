@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
 import Loader from '../../ui/Loader'
 import Modal from '../../Modal'
 import AppButton from '../../ui/AppButton'
+import useFetchData from '../../../hooks/useFetchData'
 import { type Task } from '../../../interfaces/TaskInterface'
 
 interface TaskDetailProps {
@@ -11,41 +11,10 @@ interface TaskDetailProps {
 }
 
 const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, isOpen, onClose }) => {
-  const [task, setTask] = useState<Task | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchTaskById = async (id: number): Promise<void> => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch(`http://localhost:8000/api/v1/tasks/${id}`)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      setTask(data)
-    } catch (err) {
-      console.error('Error fetching task:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch task')
-      setTask(null)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (taskId && isOpen) {
-      fetchTaskById(taskId)
-    }
-  }, [taskId, isOpen])
+  const url = taskId ? `http://localhost:8000/api/v1/tasks/${taskId}` : ''
+  const { data: task, loading, error } = useFetchData<Task>(url)
 
   const handleClose = (): void => {
-    setTask(null)
-    setError(null)
     onClose()
   }
 

@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
 import Loader from '../../ui/Loader'
 import Modal from '../../Modal'
 import AppButton from '../../ui/AppButton'
 import TaskItem from './TaskItem'
+import useFetchData from '../../../hooks/useFetchData'
 import { type Task } from '../../../interfaces/TaskInterface'
 
 interface TaskListProps {
@@ -10,38 +10,11 @@ interface TaskListProps {
 }
 
 const TaskList: React.FC<TaskListProps> = ({ onTaskSelect }) => {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const fetchTasks = async (): Promise<void> => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch('http://localhost:8000/api/v1/tasks')
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      setTasks(data)
-    } catch (err) {
-      console.error('Error fetching tasks:', err)
-      setError(err instanceof Error ? err.message : 'Failed to fetch tasks')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { data: tasks, loading, error, refetch } = useFetchData<Task[]>('http://localhost:8000/api/v1/tasks')
 
   const handleRefresh = (): void => {
-    fetchTasks()
+    refetch()
   }
-
-  useEffect(() => {
-    fetchTasks()
-  }, [])
 
   if (loading) {
     return (
@@ -69,7 +42,7 @@ const TaskList: React.FC<TaskListProps> = ({ onTaskSelect }) => {
         </div>
       )}
 
-      {tasks.length === 0 && !error ? (
+      {(!tasks || tasks.length === 0) && !error ? (
         <div className="text-center py-8">
           <div className="text-gray-400 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +53,7 @@ const TaskList: React.FC<TaskListProps> = ({ onTaskSelect }) => {
         </div>
       ) : (
         <div className="space-y-3">
-          {tasks.map((task) => (
+          {tasks?.map((task) => (
             <TaskItem
               key={task.id}
               task={task}
@@ -91,7 +64,7 @@ const TaskList: React.FC<TaskListProps> = ({ onTaskSelect }) => {
       )}
       
       <div className="mt-4 text-sm text-gray-500 text-center">
-        Total: {tasks.length} task{tasks.length !== 1 ? 's' : ''}
+        Total: {tasks?.length || 0} task{(tasks?.length || 0) !== 1 ? 's' : ''}
       </div>
     </div>
   )
