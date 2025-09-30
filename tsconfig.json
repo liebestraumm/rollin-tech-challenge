@@ -10,8 +10,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true, 
-    "removeComments": true
+    "removeComments": true,
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "sequelize"]
+  "exclude": ["node_modules", "sequelize", "dist", "tests"]
 }
