@@ -45,18 +45,9 @@ import {
 } from '../../src/controllers/taskController';
 import { HttpError } from '../../src/lib/HttpError';
 import HttpCode from '../../src/constants/httpCode';
+import { createMockReqResNext } from '../helpers/mockHelpers';
 
 describe('Task Controller', () => {
-  const createMockReqResNext = (reqData: any = {}) => {
-    const req = { ...reqData } as any;
-    const res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    } as any;
-    const next = jest.fn();
-    return { req, res, next };
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -64,45 +55,53 @@ describe('Task Controller', () => {
   describe('getAllTasks', () => {
     it('should return all tasks successfully', async () => {
       mockTaskModel.findAll.mockResolvedValue([mockTask]);
-      const { req, res, next } = createMockReqResNext();
+      const { request, response, next } = createMockReqResNext();
 
-      await getAllTasks(req, res, next);
+      await getAllTasks(request, response, next);
 
       expect(mockTaskModel.findAll).toHaveBeenCalledTimes(1);
-      expect(res.status).toHaveBeenCalledWith(HttpCode.OK);
-      expect(res.json).toHaveBeenCalledWith([mockTask]);
+      expect(response.status).toHaveBeenCalledWith(HttpCode.OK);
+      expect(response.json).toHaveBeenCalledWith([mockTask]);
     });
 
     it('should throw error when database fails', async () => {
       const error = new Error('DB fail');
       mockTaskModel.findAll.mockRejectedValue(error);
-      const { req, res, next } = createMockReqResNext();
+      const { request, response, next } = createMockReqResNext();
 
-      await expect(getAllTasks(req, res, next)).rejects.toThrow('DB fail');
+      await expect(getAllTasks(request, response, next)).rejects.toThrow(
+        'DB fail',
+      );
       expect(mockTaskModel.findAll).toHaveBeenCalledTimes(1);
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(response.status).not.toHaveBeenCalled();
+      expect(response.json).not.toHaveBeenCalled();
     });
   });
 
   describe('getTaskById', () => {
     it('should return a task by ID', async () => {
-      const { req, res, next } = createMockReqResNext({ params: { id: '1' } });
+      const { request, response, next } = createMockReqResNext({
+        params: { id: '1' },
+      });
 
-      await getTaskById(req, res, next);
+      await getTaskById(request, response, next);
 
       expect(mockTaskModel.findByPk).toHaveBeenCalledWith('1');
-      expect(res.status).toHaveBeenCalledWith(HttpCode.OK);
-      expect(res.json).toHaveBeenCalledWith(mockTask);
+      expect(response.status).toHaveBeenCalledWith(HttpCode.OK);
+      expect(response.json).toHaveBeenCalledWith(mockTask);
     });
 
     it('should throw HttpError if task not found', async () => {
-      const { req, res, next } = createMockReqResNext({ params: { id: '2' } });
+      const { request, response, next } = createMockReqResNext({
+        params: { id: '2' },
+      });
 
-      await expect(getTaskById(req, res, next)).rejects.toThrow(HttpError);
+      await expect(getTaskById(request, response, next)).rejects.toThrow(
+        HttpError,
+      );
       expect(mockTaskModel.findByPk).toHaveBeenCalledWith('2');
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(response.status).not.toHaveBeenCalled();
+      expect(response.json).not.toHaveBeenCalled();
     });
   });
 
@@ -112,22 +111,28 @@ describe('Task Controller', () => {
       const createdTask = { ...mockTask, ...newTaskData };
       mockTaskModel.create.mockResolvedValue(createdTask);
 
-      const { req, res, next } = createMockReqResNext({ body: newTaskData });
+      const { request, response, next } = createMockReqResNext({
+        body: newTaskData,
+      });
 
-      await createTask(req, res, next);
+      await createTask(request, response, next);
 
       expect(mockTaskModel.create).toHaveBeenCalledWith(newTaskData);
-      expect(res.status).toHaveBeenCalledWith(HttpCode.CREATED);
-      expect(res.json).toHaveBeenCalledWith(createdTask);
+      expect(response.status).toHaveBeenCalledWith(HttpCode.CREATED);
+      expect(response.json).toHaveBeenCalledWith(createdTask);
     });
 
     it('should throw HttpError when body is empty', async () => {
-      const { req, res, next } = createMockReqResNext({ body: {} });
+      const { request, response, next } = createMockReqResNext({
+        body: {},
+      });
 
-      await expect(createTask(req, res, next)).rejects.toThrow(HttpError);
+      await expect(createTask(request, response, next)).rejects.toThrow(
+        HttpError,
+      );
       expect(mockTaskModel.create).not.toHaveBeenCalled();
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(response.status).not.toHaveBeenCalled();
+      expect(response.json).not.toHaveBeenCalled();
     });
   });
 
@@ -137,60 +142,68 @@ describe('Task Controller', () => {
       const updatedTask = { ...mockTask, ...updateData };
       mockTaskModel.findByPk.mockResolvedValue(updatedTask);
 
-      const { req, res, next } = createMockReqResNext({
+      const { request, response, next } = createMockReqResNext({
         params: { id: '1' },
         body: updateData,
       });
 
-      await updateTask(req, res, next);
+      await updateTask(request, response, next);
 
       expect(mockTaskModel.update).toHaveBeenCalledWith(updateData, {
         where: { id: '1' },
       });
-      expect(res.status).toHaveBeenCalledWith(HttpCode.OK);
-      expect(res.json).toHaveBeenCalledWith(updatedTask);
+      expect(response.status).toHaveBeenCalledWith(HttpCode.OK);
+      expect(response.json).toHaveBeenCalledWith(updatedTask);
     });
 
     it('should throw HttpError if task not found', async () => {
-      const { req, res, next } = createMockReqResNext({
+      const { request, response, next } = createMockReqResNext({
         params: { id: '99' },
         body: { title: 'X' },
       });
 
-      await expect(updateTask(req, res, next)).rejects.toThrow(HttpError);
+      await expect(updateTask(request, response, next)).rejects.toThrow(
+        HttpError,
+      );
       expect(mockTaskModel.update).toHaveBeenCalledWith(
         { title: 'X' },
         { where: { id: '99' } },
       );
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(response.status).not.toHaveBeenCalled();
+      expect(response.json).not.toHaveBeenCalled();
     });
   });
 
   describe('deleteTask', () => {
     it('should delete an existing task', async () => {
-      const { req, res, next } = createMockReqResNext({ params: { id: '1' } });
+      const { request, response, next } = createMockReqResNext({
+        params: { id: '1' },
+      });
 
-      await deleteTask(req, res, next);
+      await deleteTask(request, response, next);
 
       expect(mockTaskModel.destroy).toHaveBeenCalledWith({
         where: { id: '1' },
       });
-      expect(res.status).toHaveBeenCalledWith(HttpCode.OK);
-      expect(res.json).toHaveBeenCalledWith({
+      expect(response.status).toHaveBeenCalledWith(HttpCode.OK);
+      expect(response.json).toHaveBeenCalledWith({
         message: 'Task has been deleted.',
       });
     });
 
     it('should throw HttpError if task does not exist', async () => {
-      const { req, res, next } = createMockReqResNext({ params: { id: '99' } });
+      const { request, response, next } = createMockReqResNext({
+        params: { id: '99' },
+      });
 
-      await expect(deleteTask(req, res, next)).rejects.toThrow(HttpError);
+      await expect(deleteTask(request, response, next)).rejects.toThrow(
+        HttpError,
+      );
       expect(mockTaskModel.destroy).toHaveBeenCalledWith({
         where: { id: '99' },
       });
-      expect(res.status).not.toHaveBeenCalled();
-      expect(res.json).not.toHaveBeenCalled();
+      expect(response.status).not.toHaveBeenCalled();
+      expect(response.json).not.toHaveBeenCalled();
     });
   });
 });
