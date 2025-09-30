@@ -10,7 +10,7 @@ interface UseFetchDataReturn<T> extends FetchState<T> {
   refetch: () => Promise<void>
 }
 
-const useFetchData = <T>(url: string): UseFetchDataReturn<T> => {
+const useFetchData = <T>(url: string, dependency?: number): UseFetchDataReturn<T> => {
   const [state, setState] = useState<FetchState<T>>({
     data: null,
     loading: true,
@@ -45,7 +45,7 @@ const useFetchData = <T>(url: string): UseFetchDataReturn<T> => {
 
   useEffect(() => {
     fetchData()
-  }, [fetchData])
+  }, [fetchData, dependency])
 
   return {
     ...state,

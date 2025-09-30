@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Loader from '../../ui/Loader'
 import Modal from '../../Modal'
 import AppButton from '../../ui/AppButton'
@@ -8,14 +9,34 @@ interface TaskDetailProps {
   taskId: number | null
   isOpen: boolean
   onClose: () => void
+  onUpdate?: (taskId: number) => void
+  onDelete?: (taskId: number) => void
+  refreshKey?: number
 }
 
-const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, isOpen, onClose }) => {
+const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, isOpen, onClose, onUpdate, onDelete, refreshKey }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false)
   const url = taskId ? `http://localhost:8000/api/v1/tasks/${taskId}` : ''
-  const { data: task, loading, error } = useFetchData<Task>(url)
+  const { data: task, loading, error } = useFetchData<Task>(url, refreshKey)
 
   const handleClose = (): void => {
+    setShowDeleteConfirm(false)
     onClose()
+  }
+
+  const handleDeleteClick = (): void => {
+    setShowDeleteConfirm(true)
+  }
+
+  const handleDeleteConfirm = (): void => {
+    if (task && onDelete) {
+      onDelete(task.id)
+      setShowDeleteConfirm(false)
+    }
+  }
+
+  const handleDeleteCancel = (): void => {
+    setShowDeleteConfirm(false)
   }
 
   return (
@@ -74,18 +95,16 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, isOpen, onClose }) => {
             )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <span className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-                  task.complete
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {task.complete ? 'Complete' : 'Pending'}
-                </span>
-              </div>
+              {task.complete && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
+                  <span className="inline-block px-3 py-1 text-sm font-medium rounded-full bg-green-100 text-green-800">
+                    Complete
+                  </span>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -125,14 +144,62 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ taskId, isOpen, onClose }) => {
           </div>
         )}
 
-        <div className="mt-6 flex justify-end">
-          <AppButton
-            onClick={handleClose}
-            twStyle="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
-          >
-            Close
-          </AppButton>
+        <div className="mt-6 flex justify-between">
+          <div>
+            {task && onDelete && (
+              <AppButton
+                onClick={handleDeleteClick}
+                twStyle="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                Delete Task
+              </AppButton>
+            )}
+          </div>
+          <div className="flex gap-3">
+            {task && onUpdate && (
+              <AppButton
+                onClick={() => onUpdate(task.id)}
+                twStyle="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                Update Task
+              </AppButton>
+            )}
+            <AppButton
+              onClick={handleClose}
+              twStyle="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+            >
+              Close
+            </AppButton>
+          </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Confirm Delete
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this task? This action cannot be undone.
+              </p>
+              <div className="flex justify-end gap-3">
+                <AppButton
+                  onClick={handleDeleteCancel}
+                  twStyle="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+                >
+                  Cancel
+                </AppButton>
+                <AppButton
+                  onClick={handleDeleteConfirm}
+                  twStyle="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+                >
+                  Delete
+                </AppButton>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   )

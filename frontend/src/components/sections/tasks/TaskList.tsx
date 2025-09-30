@@ -7,10 +7,12 @@ import { type Task } from '../../../interfaces/TaskInterface'
 
 interface TaskListProps {
   onTaskSelect?: (taskId: number) => void
+  onDelete?: (taskId: number) => void
+  refreshKey?: number
 }
 
-const TaskList: React.FC<TaskListProps> = ({ onTaskSelect }) => {
-  const { data: tasks, loading, error, refetch } = useFetchData<Task[]>('http://localhost:8000/api/v1/tasks')
+const TaskList: React.FC<TaskListProps> = ({ onTaskSelect, onDelete, refreshKey }) => {
+  const { data: tasks, loading, error, refetch } = useFetchData<Task[]>('http://localhost:8000/api/v1/tasks', refreshKey)
 
   const handleRefresh = (): void => {
     refetch()
@@ -58,6 +60,7 @@ const TaskList: React.FC<TaskListProps> = ({ onTaskSelect }) => {
               key={task.id}
               task={task}
               onTaskSelect={onTaskSelect}
+              onDelete={onDelete}
             />
           ))}
         </div>

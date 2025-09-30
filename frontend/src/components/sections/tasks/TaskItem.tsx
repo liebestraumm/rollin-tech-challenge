@@ -1,12 +1,30 @@
+import { useState } from 'react'
 import AppButton from '../../ui/AppButton'
 import { type Task } from '../../../interfaces/TaskInterface'
 
 interface TaskItemProps {
   task: Task
   onTaskSelect?: (taskId: number) => void
+  onDelete?: (taskId: number) => void
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskSelect }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskSelect, onDelete }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false)
+
+  const handleDeleteClick = (): void => {
+    setShowDeleteConfirm(true)
+  }
+
+  const handleDeleteConfirm = (): void => {
+    if (onDelete) {
+      onDelete(task.id)
+      setShowDeleteConfirm(false)
+    }
+  }
+
+  const handleDeleteCancel = (): void => {
+    setShowDeleteConfirm(false)
+  }
   return (
     <div
       className={`border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
@@ -55,23 +73,59 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onTaskSelect }) => {
         </div>
         
         <div className="flex flex-col items-end gap-2">
-          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-            task.complete
-              ? 'bg-green-100 text-green-800'
-              : 'bg-yellow-100 text-yellow-800'
-          }`}>
-            {task.complete ? 'Complete' : 'Pending'}
-          </span>
-          <AppButton
-            onClick={() => {
-              onTaskSelect?.(task.id)
-            }}
-            twStyle="text-blue-600 hover:text-blue-800 text-sm font-medium bg-transparent p-0 border-0 shadow-none"
-          >
-            View Details
-          </AppButton>
+          {task.complete && (
+            <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+              Complete
+            </span>
+          )}
+          <div className="flex gap-2">
+            <AppButton
+              onClick={() => {
+                onTaskSelect?.(task.id)
+              }}
+              twStyle="text-blue-600 hover:text-white text-sm font-medium bg-transparent p-0 border-0 shadow-none p-2"
+            >
+              View Details
+            </AppButton>
+            {onDelete && (
+              <AppButton
+                onClick={handleDeleteClick}
+                twStyle="text-red-600 hover:text-white text-sm font-medium bg-transparent p-0 border-0 shadow-none p-2"
+              >
+                Delete
+              </AppButton>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirm Delete
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete "{task.title}"? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <AppButton
+                onClick={handleDeleteCancel}
+                twStyle="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                Cancel
+              </AppButton>
+              <AppButton
+                onClick={handleDeleteConfirm}
+                twStyle="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                Delete
+              </AppButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

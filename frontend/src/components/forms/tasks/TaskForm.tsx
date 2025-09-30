@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form'
+import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Modal from '../../Modal'
 import AppButton from '../../ui/AppButton'
@@ -30,9 +31,32 @@ const TaskForm: React.FC<TaskFormProps> = ({
       title: initialData?.title || '',
       description: initialData?.description || '',
       complete: initialData?.complete || false,
-      due: initialData?.due
+      due: initialData?.due 
+        ? (initialData.due instanceof Date 
+            ? initialData.due.toISOString().slice(0, 16)
+            : new Date(initialData.due).toISOString().slice(0, 16))
+        : undefined
     }
   })
+
+  // Reset form when initialData changes (for update mode)
+  useEffect(() => {
+    if (initialData) {
+      // Format the date for datetime-local input (YYYY-MM-DDTHH:MM)
+      const formattedDue = initialData.due 
+        ? (initialData.due instanceof Date 
+            ? initialData.due.toISOString().slice(0, 16)
+            : new Date(initialData.due).toISOString().slice(0, 16))
+        : undefined
+      
+      reset({
+        title: initialData.title || '',
+        description: initialData.description || '',
+        complete: initialData.complete || false,
+        due: formattedDue
+      })
+    }
+  }, [initialData, reset])
 
   const onFormSubmit = async (data: CreateTaskInput): Promise<void> => {
     try {
@@ -116,19 +140,32 @@ const TaskForm: React.FC<TaskFormProps> = ({
           )}
 
           {/* Due Date Field */}
-          <div>
+          <div className="relative">
             <label htmlFor="due" className="block text-sm font-medium text-gray-700 mb-1">
               Due Date
             </label>
-            <input
-              type="datetime-local"
-              id="due"
-              {...register('due')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.due ? 'border-red-300' : 'border-gray-300'
-              }`}
-              disabled={isSubmitting}
-            />
+            <div className="relative">
+              <input
+                type="datetime-local"
+                id="due"
+                {...register('due')}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.due ? 'border-red-300' : 'border-gray-300'
+                }`}
+                disabled={isSubmitting}
+                onBlur={(e) => {
+                  // Ensure the date picker closes when focus is lost
+                  e.target.blur()
+                }}
+                style={{
+                  // CSS to influence calendar position
+                  position: 'relative',
+                  zIndex: 10,
+                  // Add transform to potentially influence calendar position
+                  transform: 'translateY(0)'
+                }}
+              />
+            </div>
             {errors.due && (
               <p className="mt-1 text-sm text-red-600">{errors.due.message}</p>
             )}

@@ -18,3 +18,38 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom styles for datetime-local input calendar positioning */
+input[type="datetime-local"] {
+  position: relative;
+  z-index: 10;
+}
+
+/* Force calendar to appear above the input */
+input[type="datetime-local"]:focus {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Webkit-specific styles for calendar positioning */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: relative;
+  z-index: 10;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit {
+  position: relative;
+  z-index: 10;
+}
+
+/* Additional positioning for the calendar popup */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:focus {
+  position: relative;
+  z-index: 1000;
+}
+
+/* For Firefox and other browsers */
+input[type="datetime-local"]::-moz-calendar-picker-indicator {
+  position: relative;
+  z-index: 10;
+}
